@@ -56,8 +56,8 @@ normalize.data <- function(exp.data, by.quantiles = FALSE, by.gene = FALSE,
     if(!is.null(truncation.percentil)){
         if( truncation.percentil >= 0 & truncation.percentil <= 1){
             # Guarantees that truncation.percentil is in [0.5,1]
-            if(truncation.percentil < (1-truncation.percentil))
-                truncation.percentil <- 1-truncation.percentil
+            if(truncation.percentil < (1 - truncation.percentil))
+                truncation.percentil <- 1 - truncation.percentil
             # Truncates by the percentil
             norm.data <- t(apply(norm.data, 1, function(x){
                 quan.inf <- stats::quantile(x, 1 - truncation.percentil,
@@ -78,14 +78,14 @@ normalize.data <- function(exp.data, by.quantiles = FALSE, by.gene = FALSE,
     }
     if(by.gene == TRUE){
         if(percentil == TRUE){
-            norm.data <- t(apply(norm.data,1, function(x){stats::ecdf(x)(x)}))
+            norm.data <- t(apply(norm.data, 1, function(x){stats::ecdf(x)(x)}))
         }else{
             norm.data <- t(apply(norm.data, 1, .minmaxScaler1d))
         }
     } else {
         if(percentil == TRUE){
             emp <- stats::ecdf(norm.data)
-            norm.data <- t(apply(norm.data,1,emp))
+            norm.data <- t(apply(norm.data, 1, emp))
         }else{
             norm.data <- .minmaxScaler1d(norm.data)
         }
