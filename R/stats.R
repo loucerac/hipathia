@@ -80,18 +80,14 @@ normalize.data <- function(exp.data, by.quantiles = FALSE, by.gene = FALSE,
         if(percentil == TRUE){
             norm.data <- t(apply(norm.data,1, function(x){stats::ecdf(x)(x)}))
         }else{
-            norm.data <- t(apply(norm.data, 1, function(x){
-                (x - min(x, na.rm = TRUE))/(max(x, na.rm = TRUE) -
-                                                min(x, na.rm = TRUE))
-            }))
+            norm.data <- t(apply(norm.data, 1, .minmaxScaler_1d))
         }
     } else {
         if(percentil == TRUE){
             emp <- stats::ecdf(norm.data)
             norm.data <- t(apply(norm.data,1,emp))
         }else{
-            norm.data <- (norm.data - min(norm.data, na.rm = TRUE))/
-                (max(norm.data, na.rm = TRUE) - min(norm.data, na.rm = TRUE))
+            norm.data <- minmaxScaler_1d(norm.data)
         }
     }
 
@@ -485,3 +481,11 @@ get.pathways.pvalues <- function(comp, conf = 0.05){
     return(pvals)
 }
 
+.minmaxScaler_1d <- function(x) {
+    scale <- max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
+    # correctly handle zero variance features
+    scale[scale == 0] = 1
+    xTrans <- (x - min(x, na.rm = TRUE)) / scale
+
+    return(xTrans)
+}
