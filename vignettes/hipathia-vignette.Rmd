@@ -19,25 +19,35 @@ the intensity of the signal arriving to it.
 ## Introduction
 
 HiPathia package implements the Canonical Circuit Activity Analysis method
-for the quantification of the signaling pathways activity presented in 
+for the quantification of the signaling pathways activity presented in
 [Hidalgo et al.](https://www.ncbi.nlm.nih.gov/pubmed/28042959). It has been
 conceived as a functional tool for R users which allows more control on the
 analysis pipeline than the web implementation http://hipathia.babelomics.org.
 
 This document will introduce you to the HiPathia package and how to use it to
-analyze your data. 
+analyze your data.
 
 
 
 ## Previous considerations
 
-HiPathia uses 
-We have developed a module which is able to transform KEGG pathway KGML files
-into SIF files with attibutes
+<!-- HiPathia uses -->
+We have developed a module which is able to transform KEGG pathway KGML files into SIF files with attibutes.
 
-### Instalation 
+### Installation
 
-In order to install the Hipathia package, type on your R console
+In order to install the Hipathia package, type on your R console:
+
+```{r, fig.show='hold', message=FALSE, warning=FALSE}
+library(devtools)
+install_github("martahidalgo/hpAnnot")
+install_github("martahidalgo/hipathia")
+```
+
+Note that the `devtools` package is a hard dependency: it provides `install_github()`, which enables 
+installing packages from GitHub in a manner analogous to that of `install_packages()`. The `devtools` 
+package can be installed via `install.packages("devtools")`.
+
 
 
 ### Example data
@@ -69,7 +79,7 @@ data("brca_design")
 HiPathia accepts as input data a gene expression matrix. Expression may have
 been measured with any available sequencing technique. However, HiPathia
 assumes that data has been already normalized for correcting any possible
-sequencing bias (which includes also batch effect correction). 
+sequencing bias (which includes also batch effect correction).
 
 ```{r, fig.show='hold',}
 hhead(brca_data)
@@ -121,8 +131,8 @@ trans_data <- translate.matrix(brca_data, "hsa")
 ```
 
 Apart from the necessary bias corrections, expression data must be normalized
-between 0 and 1 before applying the `hipathia` function. Function 
-`normalize.data` is designed to this purpouse. 
+between 0 and 1 before applying the `hipathia` function. Function
+`normalize.data` is designed to this purpouse.
 
 ```{r, fig.show='hold'}
 boxplot(trans_data)
