@@ -16,8 +16,9 @@ test_that("normalize.data on the Iris dataset", {
 
 test_that("normalize.data on a dataset with zero variance", {
     dataNormalized <- normalize.data(kZeroVarianceData, by.gene=TRUE)
-    expectedData <- matrix(c(0, 0, 0, 0, 0, 0, 0.5, 0.0, 1.0), nrow=3, ncol=3)
+    expectedData <- matrix(c(0, 0, 0, 0, 0, 0, 0.5, 0.0, 1.0),
+                           nrow=kNumsamples, ncol=kNumFeatures)
     expectedData = t(expectedData)
-    
+
     expect_equal(dataNormalized, expectedData, tolerance=kTolerance)
 })
