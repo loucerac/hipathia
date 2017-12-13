@@ -157,7 +157,7 @@ cor.test.fun <- function(x, values){
 
 
 cor.data.frame <- function(wilcox){
-    if (class(wilcox) == "try-error" | is.na( wilcox$p.value )){
+    if (inherits(wilcox, "try-error") | is.na( wilcox$p.value )){
         pvalue <- 1
         class <- "0"
         esti <- 0
@@ -268,7 +268,7 @@ wilcoxsign.test.fun <- function(x, control, disease){
     r <- try(coin::wilcoxsign_test(as.numeric(x[disease])~
                                        as.numeric(x[control]),
                                    showWarnings = FALSE))
-    if (class(r) == "try-error"){
+    if (inherits(r, "try-error")){
         pvalue <- 1
         class <- "0"
         stat <- 0
@@ -305,7 +305,7 @@ wilcox.test.fun <- function(x, control, disease, paired){
 
 
 wilcox.data.frame <- function(wilcox){
-    if (class(wilcox) == "try-error"){
+    if (inherits(wilcox, "try-error")){
         pvalue <- 1
         class <- "0"
         stat <- 0
