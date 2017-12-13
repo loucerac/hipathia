@@ -87,7 +87,7 @@ normalize.data <- function(exp.data, by.quantiles = FALSE, by.gene = FALSE,
             emp <- stats::ecdf(norm.data)
             norm.data <- t(apply(norm.data,1,emp))
         }else{
-            norm.data <- minmaxScaler_1d(norm.data)
+            norm.data <- .minmaxScaler_1d(norm.data)
         }
     }
 
