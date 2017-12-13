@@ -485,7 +485,7 @@ get.pathways.pvalues <- function(comp, conf = 0.05){
     # Scikit Learn compatible: sklearn.preprocessing.MinMaxScaler
     scale <- max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
     # correctly handle zero variance features
-    scale[scale == 0] = 1
+    scale[!scale] <- 1
     # fit
     xTrans <- (x - min(x, na.rm = TRUE)) / scale
 
