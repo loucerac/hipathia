@@ -37,6 +37,9 @@
 hipathia <- function(genes.vals, metaginfo, decompose = FALSE, maxnum = 100,
                      verbose = TRUE, tol = 0.000001){
 
+    # Check arguments
+    if(tol <= 0) stop("Error: the recursive tolerance 'tol' should be > 0")
+
     pathigraphs <- metaginfo$pathigraphs
     genes.vals <- add.missing.genes(genes.vals, genes = metaginfo$all.genes)
 
