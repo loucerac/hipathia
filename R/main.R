@@ -60,12 +60,12 @@ hipathia <- function(genes.vals, metaginfo, decompose = FALSE, maxnum = 100,
             respaths <- all.path.values(res$nodes.vals,
                                         pathigraph$effector.subgraphs,
                                         maxnum = maxnum,
-                                        tol = tol )
+                                        tol = tol)
         }else{
             respaths <- all.path.values(res$nodes.vals,
                                         pathigraph$subgraphs,
                                         maxnum = maxnum,
-                                        tol = tol )
+                                        tol = tol)
         }
 
         res$path.vals <- respaths[[1]]
