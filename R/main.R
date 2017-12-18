@@ -54,18 +54,18 @@ hipathia <- function(genes.vals, metaginfo, decompose = FALSE, maxnum = 100,
             cat(paste(pathigraph$path.id, "-", pathigraph$path.name, "\n"))
 
         res <- list()
-        res$nodes.vals <- nodes.values.from.genes( genes.vals, pathigraph$graph)
+        res$nodes.vals <- nodes.values.from.genes(genes.vals, pathigraph$graph)
 
         if(decompose == FALSE){
-            respaths <- all.path.values( res$nodes.vals,
-                                         pathigraph$effector.subgraphs,
-                                         maxnum = maxnum,
-                                         tol = tol )
+            respaths <- all.path.values(res$nodes.vals,
+                                        pathigraph$effector.subgraphs,
+                                        maxnum = maxnum,
+                                        tol = tol )
         }else{
-            respaths <- all.path.values( res$nodes.vals,
-                                         pathigraph$subgraphs,
-                                         maxnum = maxnum,
-                                         tol = tol )
+            respaths <- all.path.values(res$nodes.vals,
+                                        pathigraph$subgraphs,
+                                        maxnum = maxnum,
+                                        tol = tol )
         }
 
         res$path.vals <- respaths[[1]]
