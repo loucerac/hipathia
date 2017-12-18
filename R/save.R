@@ -30,9 +30,6 @@
 #'
 save.results <- function(results, comp, metaginfo, output.folder){
 
-    if(!file.exists(output.folder)){
-        dir.create(output.folder)
-    }
     # Write files
     utils::write.table(results$all$path.vals,
                        file = paste0(output.folder,"/all_path_vals.txt"),
@@ -71,17 +68,17 @@ write.attributes <- function(this_comp, pathway, metaginfo, prefix,
                                             conf = conf,
                                             reverse_xref = reverse_xref,
                                             exp = exp)
-    utils::write.table(atts$sif,file=paste0(prefix,".sif"),
+    utils::write.table(atts$sif, file = paste0(prefix, ".sif"),
                        row.names = FALSE,
                        col.names = FALSE,
                        quote = FALSE,
                        sep = "\t")
-    utils::write.table(atts$node_att,file=paste0(prefix,".natt"),
+    utils::write.table(atts$node_att, file = paste0(prefix, ".natt"),
                        row.names = FALSE,
                        col.names = TRUE,
                        quote = FALSE,
                        sep = "\t")
-    utils::write.table(atts$edge_att,file=paste0(prefix,".eatt"),
+    utils::write.table(atts$edge_att, file = paste0(prefix, ".eatt"),
                        row.names = FALSE,
                        col.names = TRUE,
                        quote = FALSE,
@@ -93,7 +90,7 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
                                             moreatts_pathway = NULL, conf=0.05,
                                             reverse_xref = NULL, exp = NULL){
 
-    # pcomp <- comp[grep(paste0(pathway,"__"),rownames(comp)),]
+
     pathigraphs <- metaginfo$pathigraphs
     effector <- length(unlist(strsplit(rownames(comp)[1], split="-"))) == 3
     if(effector == TRUE){
@@ -117,9 +114,9 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
     V(ig)$color <- "white"
     V(ig)$width[V(ig)$shape=="circle"] <- 15
     V(ig)$width[V(ig)$shape!="circle"] <- 22
-    V(ig)$shape[V(ig)$shape=="rectangle" & !grepl("func",V(ig)$name)] <-
+    V(ig)$shape[V(ig)$shape=="rectangle" & !grepl("func", V(ig)$name)] <-
         "ellipse"
-    V(ig)$shape[V(ig)$shape=="rectangle" & grepl("func",V(ig)$name)] <-
+    V(ig)$shape[V(ig)$shape=="rectangle" & grepl("func", V(ig)$name)] <-
         "rectangle"
     V(ig)$width[grepl("func",V(ig)$name)] <- -1
 
@@ -196,7 +193,7 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         }
         natt <- cbind(natt, moreatts_pathway[,not.common.col])
     }
-    node_path_assoc <- mat.or.vec(nrow(natt), length(s))
+    node_path_assoc <- matrix(0, nrow = nrow(natt), ncol = length(s))
     colnames(node_path_assoc) <- names(s)
     natt <- cbind(natt, node_path_assoc)
 
@@ -215,7 +212,7 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         raw_edges <- get.edgelist(subgraph)
         type <- c("activation","inhibition")[(E(subgraph)$relation == -1) + 1]
         edges <- cbind(raw_edges[,1], type, raw_edges[,2])
-        sif <- rbind(sif,edges)
+        sif <- rbind(sif, edges)
 
         # edge attributes
         eids <- apply(edges, 1, function(x) paste0(x, collapse = "_"))
@@ -223,13 +220,13 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         if("color" %in% colnames(comp)){
             color <- comp[name,"color"]
         } else {
-            if( comp[name,"FDRp.value"]<conf){
-                color <- c("#1f78b4","#e31a1c")[(status=="UP") + 1]
+            if( comp[name,"FDRp.value"] < conf){
+                color <- c("#1f78b4","#e31a1c")[(status == "UP") + 1]
             } else {
                 color <- "darkgrey"
             }
         }
-        path_assoc <- mat.or.vec(nrow(edges), length(s))
+        path_assoc <- matrix(0, nrow = nrow(edges), ncol = length(s))
         colnames(path_assoc) <- names(s)
         path_assoc[,name] <- 1
         edges_atts <- cbind(id = eids,
@@ -265,7 +262,7 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         # up regulated
         upsig <- which(subeatt[,"status"] == "UP" &
                            as.numeric(subeatt[,"adj.pvalue"]) < conf)
-        if(length(upsig)>0){
+        if(length(upsig) > 0){
 
             selected_subsif <- subsif[1,]
             selected_subsif[2] <- paste0(selected_subsif[2], ".up")
@@ -361,7 +358,7 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         funejes <- as.data.frame(matrix(0,
                                         nrow = length(ids),
                                         ncol = ncol(def_eatt)),
-                                 stringsAsFactors=FALSE)
+                                 stringsAsFactors = FALSE)
         colnames(funejes) <- colnames(def_eatt)
         rownames(funejes) <- ids
         funejes$id <- ids
@@ -375,26 +372,15 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         nods <- get.edgelist(ig)[left,1]
         names(nods) <- ids
         names(ids) <- nods
-        if(effector == TRUE){
-            funs <- t(apply(funejes, 1, function(x){
-                if(any(colnames(funejes) == nods[as.character(x[1])])){
-                    x[which(colnames(funejes) == nods[as.character(x[1])])] <- 1
-                    x
-                }else{
-                    x
-                }
-            }))
-        }else{
-            funs <- t(apply(funejes, 1, function(x){
-                lastnodes <- sapply(colnames(funejes), get.effnode.id)
-                if(any(lastnodes == nods[x[1]])){
-                    x[which(lastnodes == nods[x[1]])] <- 1
-                    x
-                }else{
-                    x
-                }
-            }))
-        }
+        funs <- t(apply(funejes, 1, function(x){
+            lastnodes <- sapply(colnames(funejes), get.effnode.id)
+            if(any(lastnodes == nods[x[[1]]])){
+                x[which(lastnodes == nods[x[[1]]])] <- 1
+                x
+            }else{
+                x
+            }
+        }))
         funs <- as.data.frame(funs, stringsAsFactors = FALSE)
         sif_funs <- data.frame(V1 = get.edgelist(ig)[left,1],
                                type = rep("activation", times = length(left)),
@@ -423,10 +409,12 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
         translate_ids <- function(ids){
             if(length(ids) > 0){
                 ids <- setdiff(ids, "/")
-                tids <- sapply(reverse_xref[ids],
-                               function(x){
-                                   if(is.null(x)) return("?") else return(x)
-                               } )
+                tids <- sapply(reverse_xref[ids],function(x){
+                    if(is.null(x)){
+                        return("?")
+                    } else {
+                        return(x)
+                    }})
                 return(paste(tids, collapse = ","))
             } else {
                 return("?")
@@ -442,8 +430,11 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
             if(length(ids) > 0){
                 ids <- setdiff(ids, "/")
                 exp_values <- sapply(ids_list[ids],function(x){
-                    if(is.null(x)) return("?") else return(exp[x,])
-                })
+                    if(is.null(x)){
+                        return("?")
+                    }else{
+                        return(exp[x,])
+                    }})
                 return(paste(exp_values, collapse = ","))
             } else {
                 return("?")
@@ -461,8 +452,9 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
 
 create.path.info <- function(all_comp, metaginfo){
     fpgs <- metaginfo$pathigraphs
-    path_info <- by(all_comp,sapply(strsplit(rownames(all_comp), "-"), "[[", 2),
-                    function(x)x)
+    path_info <- lapply(fpgs, function(fpg){
+        all_comp[names(fpg$effector.subgraphs),]})
+
     path_json_list <- lapply(names(path_info),function(x){
         out <- paste0("{\n\t\"id\":\"", x, "\",\n")
         out <- paste0(out, "\t\"name\":\"", fpgs[[x]]$path.name, "\",\n")
@@ -477,14 +469,14 @@ create.path.info <- function(all_comp, metaginfo){
                 anychanged <- TRUE
             if(path_info[[x]]$FDRp.value[i] <= 0.05) {
                 anysig <- TRUE
-                if(path_info[[x]]$status[i]=="UP")
+                if(path_info[[x]]$status[i] == "UP")
                     anysigup <- TRUE
-                if(path_info[[x]]$status[i]=="DOWN")
+                if(path_info[[x]]$status[i] == "DOWN")
                     anysigdown <- TRUE
             }
-            if(path_info[[x]]$status[i]=="UP")
+            if(path_info[[x]]$status[i] == "UP")
                 anyup <- TRUE
-            if(path_info[[x]]$status[i]=="DOWN")
+            if(path_info[[x]]$status[i] == "DOWN")
                 anydown <- TRUE
         }
         out <- paste0(out, "\t\"haschanged\":", tolower(anychanged), ",\n")
@@ -496,32 +488,43 @@ create.path.info <- function(all_comp, metaginfo){
         out <- paste0(out, "\t\"paths\":[\n")
         for(i in 1:nrow(path_info[[x]])){
             out <- paste0(out, "\t\t{")
-            out <- paste0(out, "\"id\":\"", rownames(path_info[[x]])[i],"\", ")
+            out <- paste0(out, "\"id\":\"", rownames(path_info[[x]])[i], "\", ")
             out <- paste0(out, "\"name\":\"",
                           get.path.names(metaginfo,
-                                         rownames(path_info[[x]])[i]),"\", ")
-            out <- paste0(out, "\"shortname\":\"" ,
-                          gsub("\\*", "", strsplit(get.path.names(
-                              metaginfo,
-                              rownames(path_info[[x]])[i]),": ")[[1]][2]),
+                                         rownames(path_info[[x]])[i]), "\", ")
+            if(grepl("term_", metaginfo$pathigraphs[[1]]$path.id) == TRUE){
+                out <- paste0(out, "\"shortname\":\"",
+                              get.path.names(metaginfo,
+                                             rownames(path_info[[x]])[i]),
+                              "\", ")
+            }else{
+                out <- paste0(out, "\"shortname\":\"" ,
+                              gsub("\\*", "", strsplit(get.path.names(
+                                  metaginfo,
+                                  rownames(path_info[[x]])[i]),": ")[[1]][2]),
+                              "\", ")
+            }
+            out <- paste0(out, "\"pvalue\":", path_info[[x]]$FDRp.value[i],
+                          ", ")
+            out <- paste0(out, "\"status\":\"", path_info[[x]]$status[i],
                           "\", ")
-            out <- paste0(out, "\"pvalue\":", path_info[[x]]$FDRp.value[i],", ")
-            out <- paste0(out, "\"status\":\"", path_info[[x]]$status[i],"\", ")
             out <- paste0(out, "\"sig\":\"",
-                          tolower(path_info[[x]]$FDRp.value[i] < 0.05),"\", ")
+                          tolower(path_info[[x]]$FDRp.value[i] < 0.05), "\", ")
             out <- paste0(out, "\"haschanged\":",
-                          tolower(path_info[[x]]$has_change[i]),", ")
+                          tolower(path_info[[x]]$has_change[i]), ", ")
             out <- paste0(out, "\"up\":",
-                          tolower(path_info[[x]]$status[i] == "UP"),", ")
+                          tolower(path_info[[x]]$status[i] == "UP"), ", ")
             out <- paste0(out, "\"down\":",
-                          tolower(path_info[[x]]$status[i] == "DOWN"),", ")
+                          tolower(path_info[[x]]$status[i] == "DOWN"), ", ")
             out <- paste0(out, "\"upsig\":",
                           tolower(path_info[[x]]$status[i] == "UP" &
-                                      path_info[[x]]$FDRp.value[i]<0.05),", ")
+                                      path_info[[x]]$FDRp.value[i] < 0.05),
+                          ", ")
             out <- paste0(out, "\"downsig\":",
                           tolower(path_info[[x]]$status[i] == "DOWN" &
-                                      path_info[[x]]$FDRp.value[i]<0.05),", ")
-            out <- paste0(out, "\"color\":\"", path_info[[x]]$color[i],"\"")
+                                      path_info[[x]]$FDRp.value[i] < 0.05),
+                          ", ")
+            out <- paste0(out, "\"color\":\"", path_info[[x]]$color[i], "\"")
             out <- paste0(out, "}")
             if(i == nrow(path_info[[x]])){
                 out <- paste0(out, "\n")
@@ -538,12 +541,7 @@ create.path.info <- function(all_comp, metaginfo){
 }
 
 
-create.html.report2 <- function(pathigraphs, comp, home, output.folder,
-                                conf = 0.05, extra_javascript = "",
-                                after_html = "", before_html = "",
-                                clean_out_folder = TRUE,
-                                template_name = "index_template.html",
-                                output_name = "index.html"){
+create.report.folders <- function(output.folder, home, clean_out_folder = TRUE){
 
     pv.folder <- paste0(output.folder,"/pathway-viewer")
 
@@ -557,12 +555,38 @@ create.html.report2 <- function(pathigraphs, comp, home, output.folder,
     png.files.copy <- paste0(home, "/report-files/", png.files.copy)
     file.copy(png.files.copy, pv.folder)
 
-    # cp_command <- paste0("cp -r ", home, "/pathway-viewer/* '",
-    #                      output.folder, "/pathway-viewer/'")
-    # system(cp_command)
-    # mv_legend_command <- paste0("cp  ", home, "/report-files/*.png '",
-    #                             output.folder, "/pathway-viewer/'")
-    # system(mv_legend_command)
+}
+
+create.pathways.folder <- function(output.folder, metaginfo, comp, moreatts,
+                                   conf, verbose = FALSE){
+
+    pathways.folder <- paste0(output.folder, "/pathway-viewer/pathways/")
+    if(!file.exists(pathways.folder))
+        dir.create(pathways.folder)
+    for(pathway in names(metaginfo$pathigraphs)){
+        if(verbose == TRUE)
+            cat(pathway)
+        write.attributes(comp,
+                         pathway,
+                         metaginfo,
+                         paste0(pathways.folder, pathway),
+                         moreatts_pathway = moreatts[[pathway]],
+                         conf = conf)
+    }
+
+    comp$status <- comp$"UP/DOWN"
+    comp$has_changed <- TRUE
+    path_json <- create.path.info(comp, metaginfo)
+    write(path_json, file = paste0(output.folder,
+                                   "/pathway-viewer/pathways/path_info.json"))
+
+}
+
+
+create.html.index <- function(home, output.folder,
+                                template_name = "index_template.html",
+                                output_name = "index.html"){
+
 
     index <- scan(paste0(home,'/report-files/',template_name),
                   comment.char = "", sep = "\n", what = "character",
@@ -617,6 +641,11 @@ create.html.report2 <- function(pathigraphs, comp, home, output.folder,
 #' @param node.colors List of colors with which to paint the nodes of the
 #' pathways, as returned by the
 #' \code{node.color.per.differential.expression} function. Default is white.
+#' @param group.by How to group the subpathways to be visualized. By default
+#' they are grouped by the pathway to which they belong. Available groupings
+#' include "uniprot", to group subpathways by their annotated Uniprot functions,
+#' "GO", to group subpathways by their annotated GO terms, and "genes", to group
+#' subpathways by the genes they include.
 #' @param conf Level of significance. By default 0.05.
 #' @param verbose Boolean, whether to show details about the results of the
 #' execution
@@ -627,7 +656,12 @@ create.html.report2 <- function(pathigraphs, comp, home, output.folder,
 #' @export
 #'
 create.report <- function(results, comp, metaginfo, output.folder,
-                          node.colors = NULL, conf=0.05, verbose = FALSE){
+                          node.colors = NULL, group.by = NULL, conf=0.05,
+                          verbose = FALSE, save.results = FALSE){
+
+    if(!is.null(group.by) &
+       length(unlist(strsplit(rownames(comp)[1], split = "-"))) == 4)
+        stop("Grouping only available for effector subgraphs")
 
     if(!is.null(node.colors)){
         moreatts <- summarize.atts(list(node.colors), c("color"))
@@ -635,35 +669,28 @@ create.report <- function(results, comp, metaginfo, output.folder,
         moreatts <- NULL
     }
 
-    save.results(results, comp, metaginfo, output.folder)
-
-    pv.path <- paste0(system.file("extdata", package="hipathia"))
-    create.html.report2(metaginfo,
-                        comp,
-                        pv.path,
-                        output.folder,
-                        template_name = "index_template.html",
-                        output_name = "index.html",
-                        clean_out_folder = FALSE)
-
-    pathways.folder <- paste0(output.folder, "/pathway-viewer/pathways/")
-    if(!file.exists(pathways.folder))
-        dir.create(pathways.folder)
-    for(pathway in names(metaginfo$pathigraphs)){
-        if(verbose == TRUE) cat(pathway)
-        write.attributes(comp,
-                         pathway,
-                         metaginfo,
-                         paste0(pathways.folder, pathway),
-                         moreatts_pathway = moreatts[[pathway]],
-                         conf = conf)
+    if(!is.null(group.by)){
+        cat(paste0("Creating groupings by ", group.by, "...\n"))
+        metaginfo <- get.pseudo.metaginfo(metaginfo, group.by = group.by)
     }
 
-    comp$status <- comp$"UP/DOWN"
-    comp$has_changed <- TRUE
-    path_json <- create.path.info(comp, metaginfo)
-    write(path_json,
-          file=paste0(output.folder,"/pathway-viewer/pathways/path_info.json"))
+    if(!file.exists(output.folder))
+        dir.create(output.folder)
+    pv.path <- paste0(system.file("extdata", package="hipathia"))
+
+    cat("Creating report folders...\n")
+    create.report.folders(output.folder, pv.path, clean_out_folder = FALSE)
+
+    cat("Creating pathways folder...\n")
+    create.pathways.folder(output.folder, metaginfo, comp, moreatts, conf,
+                           verbose)
+
+    cat("Creating HTML index...\n")
+    create.html.index(pv.path,
+                      output.folder,
+                      template_name = "index_template.html",
+                      output_name = "index.html")
+
 }
 
 
@@ -710,4 +737,54 @@ visualize.report <- function(output.folder, port = 4000){
                port, "\n"))
 }
 
+
+
+
+###########################################
+
+# PSEUDO META_GRAPH_INFORMATION
+
+get.pseudo.metaginfo <- function(pathways, group.by){
+    pseudo <- load.pseudo.mgi(pathways$species, group.by)
+    # pseudo <- load(paste0("~/appl/hpAnnot/private/pathways/pseudo/pmgi_",
+    #                       pathways$species, "_", group.by, ".RData"))
+    pseudo <- get(pseudo)
+    rownames(pseudo$all.labelids) <- pseudo$all.labelids[,1]
+    pathways.list <- names(pathways$pathigraphs)
+    if(!all(unique(pseudo$all.labelids[,"path.id"]) %in% pathways.list))
+        pseudo <- filter.pseudo.mgi(pseudo, pathways.list)
+    return(pseudo)
+}
+
+filter.pseudo.mgi <- function(pseudo.meta, pathways.list){
+    num.nodes <- sapply(names(pseudo.meta$pathigraphs), function(term){
+        graph <- pseudo.meta$pathigraphs[[term]]$graph
+        vs <- V(graph)[unlist(lapply(pathways.list, grep, V(graph)$name) )]
+        length(vs)
+    })
+    tofilter <- names(pseudo.meta$pathigraphs)[num.nodes >= 1]
+    mini.pathigraphs <- lapply(pseudo.meta$pathigraphs[tofilter],
+                               function(pg){
+        minipg <- NULL
+        graph <- pg$graph
+        vs <- V(graph)[unlist(lapply(pathways.list, grep, V(graph)$name) )]
+        minipg$graph <- igraph::induced_subgraph(graph, vs)
+        minipg$path.name <- pg$path.name
+        minipg$path.id <- pg$path.id
+        es.ind <- unlist(lapply(pathways.list, grep, pg$effector.subgraphs) )
+        minipg$effector.subgraphs <- pg$effector.subgraphs[es.ind]
+        minipg
+                               })
+    names(mini.pathigraphs) <- tofilter
+
+    all.labels <- pseudo.meta$all.labelids
+    filter.labelids <- all.labels[all.labels[,"path.id"] %in% pathways.list,]
+
+    mini.pseudo <- NULL
+    mini.pseudo$pathigraphs <- mini.pathigraphs
+    mini.pseudo$species <- pseudo.meta$species
+    mini.pseudo$all.labelids <- filter.labelids
+
+    return(mini.pseudo)
+}
 
