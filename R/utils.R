@@ -491,8 +491,10 @@ get.pathways.annotations <- function(pathway.names, metaginfo, dbannot,
 
     if(is.character(dbannot)){
         annofuns <- load.annofuns(dbannot, metaginfo$species)
-    }else{
+    } else if(is.data.frame(dbannot)){
         annofuns <- annotate.paths(metaginfo, dbannot)
+    } else{
+        stop("Parameter 'dbannot' should be either a dataframe or a string.")
     }
 
     annofuns$funs[is.na(annofuns$funs)] <- ""
