@@ -1,3 +1,12 @@
+##
+## save.R
+## Saving functions for package Hipathia
+##
+## Written by Marta R. Hidalgo, Jose Carbonell-Caballero
+##
+## Code style by Hadley Wickham (http://r-pkgs.had.co.nz/style.html)
+## https://www.bioconductor.org/developers/how-to/coding-style/
+##
 
 ##################################
 # Save results
@@ -30,6 +39,8 @@
 #'
 save.results <- function(results, comp, metaginfo, output.folder){
 
+    if(!file.exists(output.folder))
+        dir.create(output.folder)
     # Write files
     utils::write.table(results$all$path.vals,
                        file = paste0(output.folder,"/all_path_vals.txt"),
@@ -653,7 +664,7 @@ create.html.index <- function(home, output.folder,
 #'
 create.report <- function(results, comp, metaginfo, output.folder,
                           node.colors = NULL, group.by = NULL, conf=0.05,
-                          verbose = FALSE, save.results = FALSE){
+                          verbose = FALSE){
 
     if(!is.null(group.by) &
        length(unlist(strsplit(rownames(comp)[1], split = "-"))) == 4)
@@ -743,8 +754,8 @@ visualize.report <- function(output.folder, port = 4000){
 get.pseudo.metaginfo <- function(pathways, group.by){
     pseudo <- load.pseudo.mgi(pathways$species, group.by)
     # pseudo <- load(paste0("~/appl/hpAnnot/private/pathways/pseudo/pmgi_",
-    #                       pathways$species, "_", group.by, ".RData"))
-    pseudo <- get(pseudo)
+    #                       pathways$species, "_", group.by, "_red.RData"))
+    # pseudo <- get(pseudo)
     rownames(pseudo$all.labelids) <- pseudo$all.labelids[,1]
     pathways.list <- names(pathways$pathigraphs)
     if(!all(unique(pseudo$all.labelids[,"path.id"]) %in% pathways.list))
