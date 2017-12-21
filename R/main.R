@@ -217,7 +217,6 @@ path.value <- function( nodes.vals, subgraph, ininodes, endnode,
 
     # Initialize lists
     ready <- ininodes
-    processed <- list()
 
     # Initialize node values
     node.signal <- matrix(NA,
