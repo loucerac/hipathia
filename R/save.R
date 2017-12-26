@@ -310,7 +310,6 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
             selected_subepath_assoc <- subepath_assoc[downsig,,drop = FALSE]
             def_epath_assoc <- rbind(def_epath_assoc,
                                      colSums(selected_subepath_assoc) > 0)
-
         }
 
         # no sigs
@@ -331,10 +330,7 @@ create.node.and.edge.attributes <- function(comp, pathway, metaginfo,
             selected_subepath_assoc <- subepath_assoc[nosigs,,drop = FALSE]
             def_epath_assoc <- rbind(def_epath_assoc,
                                      colSums(selected_subepath_assoc) > 0)
-
         }
-
-
     }
 
     rownames(def_eatt) <- NULL
@@ -633,12 +629,11 @@ create.html.index <- function(home, output.folder,
 #' create.report(results, comp, pathways, "save_results/")
 #'
 #' sample_group <- brca_design[colnames(path_vals),"group"]
-#' colors.de <- node.color.per.differential.expression(results, pathways,
+#' colors.de <- node.color.per.de(results, pathways,
 #' sample_group, "Tumor", "Normal")
 #' create.report(results, comp, pathways, "save_results/",
 #' node.colors = colors.de)
 #'
-#' @param results Results object as given by the \code{hipathia} function
 #' @param comp Comparison object as given by the \code{do.wilcoxon} function
 #' @param metaginfo Pathways object as returned by the \code{load.pathways}
 #' function
@@ -647,12 +642,12 @@ create.html.index <- function(home, output.folder,
 #' However, the parent folder must exist.
 #' @param node.colors List of colors with which to paint the nodes of the
 #' pathways, as returned by the
-#' \code{node.color.per.differential.expression} function. Default is white.
+#' \code{node.color.per.de} function. Default is white.
 #' @param group.by How to group the subpathways to be visualized. By default
 #' they are grouped by the pathway to which they belong. Available groupings
 #' include "uniprot", to group subpathways by their annotated Uniprot functions,
 #' "GO", to group subpathways by their annotated GO terms, and "genes", to group
-#' subpathways by the genes they include.
+#' subpathways by the genes they include. Default is set to "pathway".
 #' @param conf Level of significance. By default 0.05.
 #' @param verbose Boolean, whether to show details about the results of the
 #' execution
@@ -662,21 +657,22 @@ create.html.index <- function(home, output.folder,
 #'
 #' @export
 #'
-create.report <- function(results, comp, metaginfo, output.folder,
-                          node.colors = NULL, group.by = NULL, conf=0.05,
-                          verbose = FALSE){
+create.report <- function(comp, metaginfo, output.folder, node.colors = NULL,
+                          group.by = "pathway", conf=0.05, verbose = FALSE){
 
-    if(!is.null(group.by) &
+    if(group.by != "pathway" &
        length(unlist(strsplit(rownames(comp)[1], split = "-"))) == 4)
         stop("Grouping only available for effector subgraphs")
 
     if(!is.null(node.colors)){
-        moreatts <- summarize.atts(list(node.colors), c("color"))
+        if(node.colors$group.by != group.by)
+            stop("Grouping in node.colors must agree with group.by")
+        moreatts <- summarize.atts(list(node.colors$colors), c("color"))
     }else{
         moreatts <- NULL
     }
 
-    if(!is.null(group.by)){
+    if(group.by != "pathway"){
         cat(paste0("Creating groupings by ", group.by, "...\n"))
         metaginfo <- get.pseudo.metaginfo(metaginfo, group.by = group.by)
     }
@@ -726,7 +722,7 @@ summarize.atts <- function(att.list, att.names){
 #' pathways <- load.pathways(species = "hsa", pathways.list = c("hsa03320",
 #' "hsa04012"))
 #' sample.group <- brca_design[colnames(path_vals),"group"]
-#' colors.de <- node.color.per.differential.expression(results, pathways,
+#' colors.de <- node.color.per.de(results, pathways,
 #' sample.group, "Tumor", "Normal")
 #' create.report(results, comp, pathways, "~/save_results/",
 #' node.colors = colors.de)
@@ -753,9 +749,6 @@ visualize.report <- function(output.folder, port = 4000){
 
 get.pseudo.metaginfo <- function(pathways, group.by){
     pseudo <- load.pseudo.mgi(pathways$species, group.by)
-    # pseudo <- load(paste0("~/appl/hpAnnot/private/pathways/pseudo/pmgi_",
-    #                       pathways$species, "_", group.by, "_red.RData"))
-    # pseudo <- get(pseudo)
     rownames(pseudo$all.labelids) <- pseudo$all.labelids[,1]
     pathways.list <- names(pathways$pathigraphs)
     if(!all(unique(pseudo$all.labelids[,"path.id"]) %in% pathways.list))
